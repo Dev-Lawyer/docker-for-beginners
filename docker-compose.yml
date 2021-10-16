@@ -1,0 +1,41 @@
+version: '3.3' # versão do docker compose
+# Vamos definir aqui os serviços que utilizaremos
+# Para subir o wordpress, temos que criar um serviço
+# para a Base de Dados e um serviço para o Wordpress
+services: 
+   db:
+     # escolhemos aqui a imagem da Base de Dados (MySQL) 
+     # definindo também a versão utilizada
+     image: mysql:5.7 
+     volumes:
+       - db_data:/var/lib/mysql 
+       # esta linha é importante pois define que
+       # as informações do SQL ficarão "persistentes"
+       # e sempre aponta para esse endereço (/var/lib/mysql)
+       # que é uma pasta dentro do conteiner (não na sua máquina,
+       # mas na "máquina virtual" que o docker criou)
+     restart: always
+     environment: 
+       # Aqui definimos os parametros da BD: Você pode definir
+       # as senhas de root e usuario da Base de Dados
+       MYSQL_ROOT_PASSWORD: somewordpress
+       MYSQL_DATABASE: wordpress
+       MYSQL_USER: wordpress
+       MYSQL_PASSWORD: wordpress
+
+   wordpress:
+     depends_on:
+       - db
+     image: wordpress:latest
+     ports:
+       - "8000:80"
+     restart: always
+     environment:
+       WORDPRESS_DB_HOST: db:3306
+       WORDPRESS_DB_USER: wordpress
+       WORDPRESS_DB_PASSWORD: wordpress
+       WORDPRESS_DB_NAME: wordpress
+volumes:
+    # definir o db_data aqui é importante para os dados "persistirem"
+    # depois que fecharmos a conexão com a base de dados
+    db_data: {}
